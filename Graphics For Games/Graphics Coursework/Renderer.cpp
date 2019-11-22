@@ -4,6 +4,13 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 
 	Tree::CreateMesh("cylinder");
 	Tree::CreateMesh("cone");
+	House::CreateMesh("cube_floor");
+	House::CreateMesh("cube_wall");
+	House::CreateMesh("cube_roof");
+	House::CreateMesh("cube_door");
+	House::CreateMesh("triangle");
+	House::CreateMesh("sphere");
+
 	root = new SceneNode();
 	root->name = "root";
 
@@ -11,9 +18,9 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 	heightMap = new HeightMap(TEXTUREDIR"/terrain.raw");
 	quad = Mesh::GenerateQuad();
 
-	camera->SetInitialPosition(Vector3(RAW_WIDTH * HEIGHTMAP_X / 1.7f, 100.0f, RAW_WIDTH * HEIGHTMAP_Z));
-	light = new Light(Vector3((RAW_HEIGHT * HEIGHTMAP_X / 2.0f), 500.0f, (RAW_HEIGHT * HEIGHTMAP_Z)/1.5f),
-		Vector4(0.9f, 0.9f, 1.0f, 1), (RAW_WIDTH * HEIGHTMAP_X) / 1.5f);
+	camera->SetInitialPosition(Vector3(RAW_WIDTH * HEIGHTMAP_X / 1.7f, 150.0f, RAW_WIDTH * HEIGHTMAP_Z));
+	light = new Light(Vector3((RAW_HEIGHT * HEIGHTMAP_X / 3.0f), 300.0f, (RAW_HEIGHT * HEIGHTMAP_Z)/1.5f),
+		Vector4(1.0f, 1.0f, 1.0f, 1), (RAW_WIDTH * HEIGHTMAP_X) / 0.5f);
 
 
 	//currentShader = new Shader(SHADERDIR"SceneVertex.glsl", SHADERDIR"SceneFragment.glsl");
@@ -60,7 +67,7 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 
 	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"GrassFrozen1.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
-	heightMap->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"heightmap_test.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+	heightMap->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
 	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"iceflats_west.tga", TEXTUREDIR"iceflats_east.tga",
 		TEXTUREDIR"iceflats_up.tga", TEXTUREDIR"iceflats_down.tga",
@@ -77,16 +84,18 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 	SetTextureRepeating(heightMap->GetTexture(), true);
 	SetTextureRepeating(heightMap->GetBumpMap(), true);
 
-	Vector3 forestTransform = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 1.7f), -40.0f, ((RAW_WIDTH * HEIGHTMAP_X) / 1.17f));
-	CreateForest(5, forestTransform, 20, 0.0f);
+	Vector3 forestPosition = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 1.7f), -40.0f, ((RAW_WIDTH * HEIGHTMAP_X) / 1.17f));
+	CreateForest(5, forestPosition, 20, 0.0f);
+	forestPosition += Vector3(30.0f, -20.0f, -300.0f);
+	CreateForest(6, forestPosition, 20, 5.0f);
+	forestPosition += Vector3(10.0f, -20.0f, -70.0f);
+	CreateForest(4, forestPosition, 20, 5.0f);
+	forestPosition += Vector3(-400.0f, -20.0f, 20.0f);
+	CreateForest(4, forestPosition, 20, -10.0f);
 
-	forestTransform += Vector3(30.0f, -20.0f, -300.0f);
-	CreateForest(6, forestTransform, 20, 5.0f);
-	forestTransform += Vector3(10.0f, -20.0f, -70.0f);
-	CreateForest(4, forestTransform, 20, 5.0f);
-	forestTransform += Vector3(-400.0f, -20.0f, 20.0f);
-	CreateForest(4, forestTransform, 20, -10.0f);
-
+	Vector3 villagePosition = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 2.5f), 5, ((RAW_WIDTH * HEIGHTMAP_X) / 1.7f));
+	CreateVillage(1, villagePosition, 20, 0);
+	
 	init = true;
 	waterRotate = 0.0f;
 	SwitchToPerspective();
@@ -100,6 +109,7 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 Renderer::~Renderer(void) {
 	delete root;
 	Tree::DeleteTree();	
+	House::DeleteHouse();
 	delete camera;
 	delete heightMap;
 	delete quad;
@@ -191,14 +201,13 @@ void Renderer::DrawItems() {
 	//glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "cameraPos"), 1, (float*)&camera->GetPosition());
 	//glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
 	//glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "cubeTex"), 2);
-	modelMatrix.ToIdentity();
+	/*modelMatrix.ToIdentity();
 
-	Matrix4 tempMatrix = textureMatrix * modelMatrix;
+	Matrix4 tempMatrix = textureMatrix * modelMatrix * Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f));
 
 	glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "textureMatrix"), 1, false, *&tempMatrix.values);
-
 	glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "modelMatrix"), 1, false, *&modelMatrix.values);
-
+	*/
 	DrawNode(root);
 
 	glUseProgram(0);
@@ -250,9 +259,10 @@ void Renderer::DrawNode(SceneNode* n) {
 	if (n->GetMesh()) {
 		Matrix4 transform = n->GetWorldTransform() * Matrix4::Scale(n->GetModelScale());
 		modelMatrix.ToIdentity();
-		Matrix4 tempMatrix = textureMatrix * modelMatrix;
+		Matrix4 tempMatrix = textureMatrix * modelMatrix * Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f));
 		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(),"modelMatrix"), 1, false, (float*)&transform);
 		glUniform1i(glGetUniformLocation(currentShader->GetProgram(),"useTexture"), (int)n->GetMesh()->GetTexture());
+		glUniform4fv(glGetUniformLocation(currentShader->GetProgram(), "nodeColour"), 1, (float*)&n->GetColour());
 		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "textureMatrix"), 1, false, *&tempMatrix.values);
 
 		n->Draw(*this);
@@ -282,6 +292,21 @@ void Renderer::CreateForest(int amountTrees, Vector3 treeTransform, float scale,
 	//forest->SetBoundingRadius(2000.0f);
 	forest->SetTransform(forest->GetTransform() * rotationMatr);
 	root->AddChild(forest);
+}
+
+void Renderer::CreateVillage(int amountHouses, Vector3 houseTransform, float scale, float degrees)
+{
+	SceneNode* village = new SceneNode();
+	for (int i = 0; i < amountHouses; ++i) {
+		House* newlyCreatedHouse = new House();
+		Matrix4 translationMatr = Matrix4::Translation(houseTransform + Vector3(i * 3.0f * scale, 0.0f, (i % 2) * 3.0f * scale));
+		Matrix4 scalingMatr = Matrix4::Scale(Vector3(scale, scale, scale));
+		newlyCreatedHouse->SetTransform(newlyCreatedHouse->GetTransform() * translationMatr * scalingMatr);
+		village->AddChild(newlyCreatedHouse);
+	}
+	Matrix4 rotationMatr = Matrix4::Rotation(degrees, Vector3(0, 1, 0));
+	village->SetTransform(village->GetTransform() * rotationMatr);
+	root->AddChild(village);
 }
 
 

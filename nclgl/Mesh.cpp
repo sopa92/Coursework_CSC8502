@@ -98,57 +98,6 @@ Mesh* Mesh::GenerateQuad(){
 	return m;
 }
 
-/*
-Mesh* Mesh::GenerateTriangle1() {
-	Mesh* m = new Mesh();
-	m->numVertices = 3;
-	m->vertices = new Vector3[m->numVertices];
-	m->vertices[0] = Vector3(0.0f, 0.0f, 0.0f);
-	m->vertices[1] = Vector3(-0.5f, 0.5f, 0.0f);
-	m->vertices[2] = Vector3(-0.5f, -0.0f, 0.0f);
-
-	m->colours = new Vector4[m->numVertices];
-	m->colours[0] = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-	m->colours[1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
-	m->colours[2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-
-	m->BufferData();
-	return m;
-}
-
-Mesh* Mesh::GenerateTriangle2() {
-	Mesh* m = new Mesh();
-	m->numVertices = 3;
-	m->vertices = new Vector3[m->numVertices];
-	m->vertices[0] = Vector3(0.0f, 0.0f, 0.0f);
-	m->vertices[1] = Vector3(0.0f, 0.5f, 0.0f);
-	m->vertices[2] = Vector3(-0.5f, 0.5f, 0.0f);
-
-	m->colours = new Vector4[m->numVertices];
-	m->colours[0] = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-	m->colours[1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
-	m->colours[2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-
-	m->BufferData();
-	return m;
-}
-
-Mesh* Mesh::GenerateLine() {
-	Mesh* m = new Mesh();
-	m->numVertices = 2;
-	m->vertices = new Vector3[m->numVertices];
-	m->vertices[0] = Vector3(0.5f, 0.5f, 0.0f);
-	m->vertices[1] = Vector3(-0.5f, -0.5f, 0.0f);
-
-	m->colours = new Vector4[m->numVertices];
-	m->colours[0] = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-	m->colours[1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
-
-	m->BufferData();
-	return m;
-}
-*/
-
 void Mesh::BufferData() {
 	glBindVertexArray(arrayObject);
 	glGenBuffers(1, &bufferObject[VERTEX_BUFFER]);

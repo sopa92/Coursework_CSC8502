@@ -4,6 +4,7 @@
 #include "../../nclgl/SceneNode.h"
 #include "../../nclgl/HeightMap.h"
 #include "Tree.h"
+#include "House.h"
 
 class Renderer : public OGLRenderer{
 public:
@@ -29,12 +30,15 @@ public:
 	virtual void UpdateScene(float msec);
 	void UpdateTextureMatrix(float rotation);
 	void ToggleFiltering(GLuint target);
+	void ToggleRepeating(GLuint target, bool state);
 
 protected:
 	void DrawNode(SceneNode* n);
 	void CreateForest(int amountTrees, Vector3 transform, float scale, float degrees);
+	void CreateVillage(int amountHouses, Vector3 houseTransform, float scale, float degrees);
 	//---------------
-	void DrawShadowScene(); 
+	void DrawShadowScene();
+
 	void DrawCombinedScene(); 
 	Shader* sceneShader;
 	Shader* shadowShader;
@@ -43,7 +47,6 @@ protected:
 	GLuint shadowFBO;
 
 	Mesh* quad;
-	Mesh* cube;
 
 	float scale;
 	float rotation;
@@ -63,6 +66,6 @@ protected:
 	Light* light;
 	GLuint cubeMap;
 	float waterRotate;
-	bool moveCameraManually=false;
+	bool moveCameraManually = true;
 };
 

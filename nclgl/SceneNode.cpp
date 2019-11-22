@@ -20,16 +20,6 @@ void SceneNode::AddChild(SceneNode* s) {
 	s->parent = this;
 }
 
-//void SceneNode::DeleteChild(SceneNode* s) {
-//	for (vector<SceneNode*>::iterator i = s->children.begin();	i != s->children.end(); ++i) {
-//		DeleteChild(*i);
-//	}
-//	vector<SceneNode*>::iterator it = find(children.begin(), children.end(), s);
-//	if (it != children.end()) {
-//		children.erase(children.begin() + distance(children.begin(), it));
-//	}
-//}
-
 void SceneNode::DeleteChildren() {
 	if (children.size() > 0) {
 		vector<SceneNode*> childrenCopy = children;
