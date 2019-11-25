@@ -18,21 +18,17 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 	heightMap = new HeightMap(TEXTUREDIR"/terrain.raw");
 	quad = Mesh::GenerateQuad();
 
-	camera->SetInitialPosition(Vector3(RAW_WIDTH * HEIGHTMAP_X / 1.7f, 150.0f, RAW_WIDTH * HEIGHTMAP_Z));
-	light = new Light(Vector3((RAW_HEIGHT * HEIGHTMAP_X / 3.0f), 300.0f, (RAW_HEIGHT * HEIGHTMAP_Z)/1.5f),
+	camera->SetInitialPosition(Vector3(RAW_WIDTH * HEIGHTMAP_X / 1.7f, 200.0f, RAW_WIDTH * HEIGHTMAP_Z));
+	light = new Light(Vector3((RAW_HEIGHT * HEIGHTMAP_X / 2.0f), 200.0f, (RAW_HEIGHT * HEIGHTMAP_Z)),
 		Vector4(1.0f, 1.0f, 1.0f, 1), (RAW_WIDTH * HEIGHTMAP_X) / 0.5f);
-
-
-	//currentShader = new Shader(SHADERDIR"SceneVertex.glsl", SHADERDIR"SceneFragment.glsl");
-
-	reflectShader = new Shader(SHADERDIR"PerPixelVertex.glsl", SHADERDIR"reflectFragment.glsl");
+	
+	reflectShader = new Shader(SHADERDIR"reflectVertex.glsl", SHADERDIR"reflectFragment.glsl");
 
 	skyboxShader = new Shader(SHADERDIR"skyboxVertex.glsl", SHADERDIR"skyboxFragment.glsl");
 
 	lightShader = new Shader(SHADERDIR"PerPixelVertex.glsl", SHADERDIR"PerPixelFragment.glsl");
 
-	if ( !skyboxShader->LinkProgram() || 
-		!reflectShader->LinkProgram() || !lightShader->LinkProgram()) { //!currentShader->LinkProgram() ||
+	if ( !skyboxShader->LinkProgram() || !reflectShader->LinkProgram() || !lightShader->LinkProgram()) { 
 		return;
 	}
 	//----------------------
@@ -65,7 +61,7 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 	//-----------------------
 	quad->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"water.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
-	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"GrassFrozen1.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"GrassFrozen2.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
 	heightMap->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
@@ -79,22 +75,30 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 	}
 
 	SetTextureRepeating(quad->GetTexture(), true);
-	filtering = false;
-	ToggleFiltering(quad->GetTexture());
 	SetTextureRepeating(heightMap->GetTexture(), true);
 	SetTextureRepeating(heightMap->GetBumpMap(), true);
+	
+	OBJMesh* cubeMesh = new OBJMesh(MESHDIR"cube.obj");
+	SceneNode* newCube = new SceneNode(cubeMesh, Vector4(1, 0, 0, 1));
+	newCube->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"wood_floor.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
+
+	newCube->SetTransform(newCube->GetTransform() * Matrix4::Translation(Vector3(RAW_WIDTH * HEIGHTMAP_X / 1.7f, 200.0f, (RAW_WIDTH * HEIGHTMAP_Z) / 1.5f)) * Matrix4::Scale(Vector3(100, 100, 100)));
+	//root->AddChild(newCube);
+	camera->cameraTarget = Vector3(RAW_WIDTH * HEIGHTMAP_X / 1.7f, 200.0f, (RAW_WIDTH * HEIGHTMAP_Z) / 1.5f);
 
 	Vector3 forestPosition = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 1.7f), -40.0f, ((RAW_WIDTH * HEIGHTMAP_X) / 1.17f));
-	CreateForest(5, forestPosition, 20, 0.0f);
-	forestPosition += Vector3(30.0f, -20.0f, -300.0f);
-	CreateForest(6, forestPosition, 20, 5.0f);
-	forestPosition += Vector3(10.0f, -20.0f, -70.0f);
-	CreateForest(4, forestPosition, 20, 5.0f);
+	CreateForest(5, forestPosition, 30, 0);
+	forestPosition = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 1.9f), -50.0f, (((RAW_WIDTH * HEIGHTMAP_X) / 1.17f))-370);
+	CreateForest(6, forestPosition, 30, 10.0f);
+	forestPosition += Vector3(-30.0f, -20.0f, -100.0f);
+	CreateForest(4, forestPosition, 25, 0);
 	forestPosition += Vector3(-400.0f, -20.0f, 20.0f);
-	CreateForest(4, forestPosition, 20, -10.0f);
+	CreateForest(4, forestPosition, 30, -10.0f);
 
-	Vector3 villagePosition = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 2.5f), 5, ((RAW_WIDTH * HEIGHTMAP_X) / 1.7f));
-	CreateVillage(1, villagePosition, 20, 0);
+	Vector3 villagePosition = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 2.5f), -50, ((RAW_WIDTH * HEIGHTMAP_X) / 1.7f));
+	CreateVillage(1, villagePosition, 20, 45);
+	forestPosition = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 2.5f) - 300, -30, ((RAW_WIDTH * HEIGHTMAP_X) / 1.7f) + 200);
+	CreateForest(5, forestPosition, 30, 10.0f);
 	
 	init = true;
 	waterRotate = 0.0f;
@@ -126,9 +130,9 @@ void Renderer::RenderScene() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	DrawSkybox();
 	DrawHeightmap();
-	DrawWater();
 	DrawShadowScene(); // First render pass ...
 	DrawCombinedScene(); // Second render pass ...
+	DrawWater();
 	
 	SwapBuffers();
 }
@@ -153,9 +157,13 @@ void Renderer::DrawHeightmap() {
 	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "cameraPos"), 1, (float*)&camera->GetPosition());
 	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
 	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "bumpTex"), 1);
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "shadowTex"), 2);
 
 	modelMatrix.ToIdentity();
 	textureMatrix.ToIdentity();
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, shadowTex);
 
 	UpdateShaderMatrices();
 
@@ -189,53 +197,79 @@ void Renderer::DrawWater() {
 
 	UpdateShaderMatrices();
 
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	quad->Draw();
+	glDisable(GL_CULL_FACE);
 
 	glUseProgram(0);
 }
 
 void Renderer::DrawItems() {
 
-	//SetCurrentShader(lightShader); //enable the per fragment lighting shader
-	//SetShaderLight(*light);		//set the shader light
-	//glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "cameraPos"), 1, (float*)&camera->GetPosition());
-	//glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
-	//glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "cubeTex"), 2);
-	/*modelMatrix.ToIdentity();
-
-	Matrix4 tempMatrix = textureMatrix * modelMatrix * Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f));
-
-	glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "textureMatrix"), 1, false, *&tempMatrix.values);
-	glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "modelMatrix"), 1, false, *&modelMatrix.values);
-	*/
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	DrawNode(root);
+	glDisable(GL_CULL_FACE);
 
 	glUseProgram(0);
+}
+
+void Renderer::DrawNode(SceneNode* n) {
+	if (n->GetMesh()) {
+		Matrix4 transform = n->GetWorldTransform() * Matrix4::Scale(n->GetModelScale());
+		Matrix4 tempMatrix = textureMatrix * transform;
+		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "modelMatrix"), 1, false, (float*)&transform);
+		glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "useTexture"), (int)n->GetMesh()->GetTexture());
+		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "textureMatrix"), 1, false, *&tempMatrix.values);
+
+		n->Draw(*this);
+	}
+
+	for (vector<SceneNode*>::const_iterator
+		i = n->GetChildIteratorStart();
+		i != n->GetChildIteratorEnd(); ++i) {
+		DrawNode(*i);
+	}
+
 }
 
 void Renderer::SwitchToPerspective(){
 	projMatrix = Matrix4::Perspective(1.0f, 15000.0f, (float)width / (float)height, 45.0f);
 }
 
-void Renderer::SwitchToOrthographic() {
-	projMatrix = Matrix4::Orthographic(-1.0f, 15000.0f, width / 2.0f, -width / 2.0f, height / 2.0f, -height / 2.0f);
-}
-
 void Renderer::UpdateScene(float msec) {
-	
+
 	if (Window::GetKeyboard()->KeyDown(KEYBOARD_M)) {
 		moveCameraManually = true;
 	}
-	if (Window::GetKeyboard()->KeyDown(KEYBOARD_P)) {
-		cout << camera->GetPosition() << endl;
-	}
-
-	if (moveCameraManually)
-		camera->UpdateCameraManually();
-	else
-		camera->MoveCameraAround(msec);
 	
-	viewMatrix = camera->BuildViewMatrix();
+	if (moveCameraManually) {
+		camera->UpdateCameraManually();
+		viewMatrix = camera->BuildViewMatrix();
+	}
+	else {
+		viewMatrix = camera->MoveCameraAround(msec);
+		int cameraIndexPosition = camera->GetCurrentPosition();
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_RIGHT) && cameraIndexPosition < 17) {
+			camera->SetStatePaused(false);
+			while (camera->GetCurrentPosition() != cameraIndexPosition + 1) {
+				viewMatrix = camera->MoveCameraAround(msec);
+			}
+			camera->SetStatePaused(true);
+		}
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_LEFT) && cameraIndexPosition > 0) {
+			camera->SetStatePaused(false);
+			//camera->SetCurrentPosition(cameraIndexPosition - 2);
+			while (camera->GetCurrentPosition() != cameraIndexPosition - 1) {
+				camera->SetDirectionToNext(false);
+				viewMatrix = camera->MoveCameraAround(msec);
+			}
+			camera->SetStatePaused(true);
+			camera->SetDirectionToNext(true);
+		}
+	}
+	//viewMatrix = Matrix4::BuildViewMatrix(camera->GetPosition(), camera->cameraTarget, Vector3(0,1,0));
 	root->Update(msec);
 	waterRotate += msec / 5000.0f;
 }
@@ -255,41 +289,40 @@ void Renderer::ToggleFiltering(GLuint target) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Renderer::DrawNode(SceneNode* n) {
-	if (n->GetMesh()) {
-		Matrix4 transform = n->GetWorldTransform() * Matrix4::Scale(n->GetModelScale());
-		modelMatrix.ToIdentity();
-		Matrix4 tempMatrix = textureMatrix * modelMatrix * Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f));
-		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(),"modelMatrix"), 1, false, (float*)&transform);
-		glUniform1i(glGetUniformLocation(currentShader->GetProgram(),"useTexture"), (int)n->GetMesh()->GetTexture());
-		glUniform4fv(glGetUniformLocation(currentShader->GetProgram(), "nodeColour"), 1, (float*)&n->GetColour());
-		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "textureMatrix"), 1, false, *&tempMatrix.values);
-
-		n->Draw(*this);
-	}
-
-	for(vector<SceneNode*>::const_iterator
-		i = n->GetChildIteratorStart();
-		i != n->GetChildIteratorEnd(); ++i) {
-		DrawNode(*i);
-	}
-
-}
 
 void Renderer::CreateForest(int amountTrees, Vector3 treeTransform, float scale, float degrees)
 {
 	SceneNode* forest = new SceneNode();
 	forest->name = "forest";
-	for (int i = 0; i < amountTrees; ++i) {
-		Tree* newlyCreatedTree = new Tree();
-		Matrix4 translationMatr = Matrix4::Translation(treeTransform + Vector3(i * 3.0f *scale, 0.0f, (i % 2) * 3.0f * scale));
-		Matrix4 scalingMatr = Matrix4::Scale(Vector3(scale, scale, scale));
-		newlyCreatedTree->SetTransform(newlyCreatedTree->GetTransform() * translationMatr * scalingMatr);
-		forest->AddChild(newlyCreatedTree);
+	if (amountTrees > 4) {
+		int halfTrees = amountTrees / 2;
+		int restTrees = amountTrees % 2;
+		for (int i = 0; i < halfTrees; ++i) {
+			Tree* newlyCreatedTree = new Tree();
+			Matrix4 translationMatr = Matrix4::Translation(treeTransform + Vector3(scale + i * 3.0f * scale, 0.0f, 1));
+			Matrix4 scalingMatr = Matrix4::Scale(Vector3(scale, scale, scale));
+			newlyCreatedTree->SetTransform(newlyCreatedTree->GetTransform() * translationMatr * scalingMatr);
+			forest->AddChild(newlyCreatedTree);
+		}
+		for (int i = 0; i < halfTrees+ restTrees; ++i) {
+			Tree* newlyCreatedTree = new Tree();
+			Matrix4 translationMatr = Matrix4::Translation(treeTransform + Vector3(i * 3.0f * scale, 0.0f, -4 * scale));
+			Matrix4 scalingMatr = Matrix4::Scale(Vector3(scale, scale, scale));
+			newlyCreatedTree->SetTransform(newlyCreatedTree->GetTransform() * translationMatr * scalingMatr);
+			forest->AddChild(newlyCreatedTree);
+		}
+	}
+	else {
+		for (int i = 0; i < amountTrees; ++i) {
+			Tree* newlyCreatedTree = new Tree();
+			Matrix4 translationMatr = Matrix4::Translation(treeTransform + Vector3(i * 3.0f * scale, 0.0f, (i % 2) * 3.0f * scale));
+			Matrix4 scalingMatr = Matrix4::Scale(Vector3(scale, scale, scale));
+			newlyCreatedTree->SetTransform(newlyCreatedTree->GetTransform() * translationMatr * scalingMatr);
+			forest->AddChild(newlyCreatedTree);
+		}
 	}
 
 	Matrix4 rotationMatr = Matrix4::Rotation(degrees, Vector3(0, 1, 0));
-	//forest->SetBoundingRadius(2000.0f);
 	forest->SetTransform(forest->GetTransform() * rotationMatr);
 	root->AddChild(forest);
 }
@@ -297,15 +330,18 @@ void Renderer::CreateForest(int amountTrees, Vector3 treeTransform, float scale,
 void Renderer::CreateVillage(int amountHouses, Vector3 houseTransform, float scale, float degrees)
 {
 	SceneNode* village = new SceneNode();
+	Matrix4 rotationMatr = Matrix4::Rotation(degrees, Vector3(0, 1, 0));
 	for (int i = 0; i < amountHouses; ++i) {
 		House* newlyCreatedHouse = new House();
 		Matrix4 translationMatr = Matrix4::Translation(houseTransform + Vector3(i * 3.0f * scale, 0.0f, (i % 2) * 3.0f * scale));
 		Matrix4 scalingMatr = Matrix4::Scale(Vector3(scale, scale, scale));
 		newlyCreatedHouse->SetTransform(newlyCreatedHouse->GetTransform() * translationMatr * scalingMatr);
+		if(amountHouses==1)
+			newlyCreatedHouse->SetTransform(newlyCreatedHouse->GetTransform() * rotationMatr);
 		village->AddChild(newlyCreatedHouse);
 	}
-	Matrix4 rotationMatr = Matrix4::Rotation(degrees, Vector3(0, 1, 0));
-	village->SetTransform(village->GetTransform() * rotationMatr);
+	if (amountHouses > 1)
+		village->SetTransform(village->GetWorldTransform() * rotationMatr);
 	root->AddChild(village);
 }
 

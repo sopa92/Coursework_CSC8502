@@ -52,17 +52,7 @@ Mesh* Mesh::GenerateTriangle() {
 	m->colours[1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 	m->colours[2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
 	
-	/*
-	for (int i = 0; i < m->numVertices; i=i+3) {
-		m->vertices[i] = Vector3(-0.8f+(i/18.f), 0.1f, 0.0f);
-		m->vertices[i+1] = Vector3(-0.7f + (i / 18.f), -0.1f, 0.0f);
-		m->vertices[i+2] = Vector3(-0.9f + (i / 18.f), -0.1f, 0.0f);
-	
-		m->colours[i] = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-		m->colours[i+1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
-		m->colours[i+2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-	}
-	*/
+	m->GenerateNormals();
 	m->BufferData();
 	return m;
 }

@@ -20,11 +20,14 @@ void Camera::UpdateCameraManually(float msec)	{
 	if(yaw > 360.0f) {
 		yaw -= 360.0f;
 	}
-	if (Window::GetKeyboard()->KeyDown(KEYBOARD_Y)) {
-		cout << yaw << endl;
-	}
+	
 	msec *= speed;
 
+	if (Window::GetKeyboard()->KeyDown(KEYBOARD_P)) {
+		cout << "position : " << position << endl;
+		cout << "yaw : " << yaw << endl;
+		cout << "msec : " << msec << endl;
+	}
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_W)) {
 		position += Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(0,0,-1) * msec;
 	}
@@ -59,47 +62,106 @@ Matrix4 Camera::BuildViewMatrix()	{
 			Matrix4::Translation(-position);
 }
 
-void Camera::MoveCameraAround(float msec) {
+Matrix4 Camera::MoveCameraAround(float msec) {
+	if (paused)
+		return BuildViewMatrix();
 
 	if (currentPosition + 1 < (sizeof(cameraStopPoints) / sizeof(cameraStopPoints[0]))) {
 		Vector3 current = GetPosition();
-		//cout << "current : " << current << endl;
 
-		Vector3 next = cameraStopPoints[currentPosition + 1];
-		//cout << "next : " << next << endl;
-		
-		float diffX = next.x - current.x;
-		if (diffX != 0) {
-			if (diffX > 0 && diffX <= 1.0f) {
-				diffX = 2.0f;
-			}
-			else if (diffX < 0 && diffX >= -1.0f) {
-				diffX = -2.0f;
-			}
-			position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(diffX, 0, 0) * 0.003f;
-			if ((position.x > next.x && diffX > 0) || (position.x < next.x && diffX < 0))
-				position.x = next.x;
+		Vector3 nextPos = cameraStopPoints[currentPosition + 1];
+		float nextYaw = yawStopPoints[currentPosition + 1];
+		pitch = pitchStopPoints[currentPosition + 1];
+		if (!toNextPosition) {
+			nextPos = cameraStopPoints[currentPosition - 1];
+			nextYaw = yawStopPoints[currentPosition - 1];
+			pitch = pitchStopPoints[currentPosition - 1];
 		}
+		if (nextYaw > 180.0f && yaw <180.0f) {
+			nextYaw -= 360.0f;
+		}
+		float diffYaw = nextYaw - yaw;
+		/*if (diffYaw > 0) {
+			yaw += 0.5f;
+			if (yaw > nextYaw) {
+				yaw = nextYaw;
+			}
+		}else if (diffYaw < 0) {
+			yaw -= 0.5f;
+			if (yaw < nextYaw) {
+				yaw = nextYaw;
+			}
+		}*/
+		msec *= speed/2;
 
-		if (next.y - current.y != 0) {
-			position.y += next.y - current.y;
+		//yaw -= (Window::GetMouse()->GetRelativePosition().x);
+		if (diffX == 0 && diffZ == 0) {
+			diffX = (nextPos.x - current.x) / 10;
+			diffZ = (nextPos.z - current.z) / 10;
 		}
-
-		float diffZ = next.z - current.z;
-		if (diffZ != 0) {
-			if (diffZ > 0 && diffZ <= 1.0f) {
-				diffZ = 2.0f;
+		if (diffX != 0 && diffZ == 0) {
+			if (diffX > 0) {
+				position -= Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
 			}
-			else if (diffZ < 0 && diffZ >= -1.0f) {
-				diffZ = -2.0f;
+			else {
+				position += Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
 			}
-			position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(0, 0, diffZ) * 0.003f;
-			if ((position.z > next.z && diffZ > 0) || (position.z < next.z && diffZ < 0))
-				position.z = next.z;
+			position.z = current.z;
 		}
-
-		if (next == position) {
-			currentPosition++;
+		else if (diffZ != 0 && diffX == 0) {
+			if (diffZ > 0) {
+				position -= Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * msec;
+			}
+			else {
+				position += Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * msec;
+			}
+			position.x = current.x;
 		}
+		else if (diffX != 0 && diffZ != 0) {
+			if (diffX > 0) {
+				//position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
+				if (diffZ > 0) {
+					position -= Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(-1, 0, -1) * msec;
+				}
+				else {
+					position += Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(1, 0, -1) * msec;
+				}
+			}
+			else {
+				//position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
+				if (diffZ > 0) {
+					position -= Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(1, 0, -1) * msec;
+				}
+				else {
+					position += Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(-1, 0, -1) * msec;
+				}
+			}
+		}
+		if (nextPos.y - current.y != 0) {
+			position.y += nextPos.y - current.y;
+		}
+		if (diffX != 0 && ((position.x > nextPos.x&& diffX > 0) || (position.x < nextPos.x && diffX < 0)))
+			position.x = nextPos.x;
+		if (diffZ != 0 && ((position.z > nextPos.z&& diffZ > 0) || (position.z < nextPos.z && diffZ < 0)))
+			position.z = nextPos.z;
+		float intpartPosX, intpartPosZ, intpartNextPosX, intpartNextPosZ, intpartYaw, intpartNextYaw;
+		modf(position.x, &intpartPosX);
+		modf(position.z, &intpartPosZ);
+		//modf(yaw, &intpartYaw);
+		modf(nextPos.x, &intpartNextPosX);
+		modf(nextPos.z, &intpartNextPosZ);
+		//modf(nextYaw, &intpartNextYaw);
+		if (intpartPosX == intpartNextPosX && intpartPosZ == intpartNextPosZ) {
+			if (!toNextPosition) {
+				currentPosition--;
+			}
+			else {
+				currentPosition++;
+			}
+			//yaw = 0;
+			cout << "currentPosition : " << currentPosition << endl;
+			cout << "current yaw : " << nextYaw << endl;
+		}
+		return Matrix4::BuildViewMatrix(position, cameraTarget, Vector3(0, 1, 0));
 	}
 }

@@ -7,7 +7,7 @@ uniform mat4 textureMatrix;
 
 in vec3 position;
 in vec4 colour;
-in vec3 normal;
+in vec3 normal; // New Attribute !
 in vec2 texCoord;
 
 out Vertex{
@@ -15,7 +15,6 @@ out Vertex{
 	vec2 texCoord;
 	vec3 normal;
 	vec3 worldPos;
-	vec4 shadowProj; // New !
 } OUT;
 
 void main(void) {
@@ -27,7 +26,5 @@ void main(void) {
 	OUT.normal = normalize(normalMatrix * normalize(normal));
 
 	OUT.worldPos = (modelMatrix * vec4(position, 1)).xyz;
-	OUT.shadowProj =(textureMatrix * vec4(position + (normal *1.5),1));
-
 	gl_Position = (projMatrix * viewMatrix * modelMatrix) * vec4(position, 1.0);
 }

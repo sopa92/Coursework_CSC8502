@@ -1,21 +1,15 @@
 /******************************************************************************
 Class:Camera
-Implements:
-Author:Rich Davison	<richard.davison4@newcastle.ac.uk>
 Description:FPS-Style camera. Uses the mouse and keyboard from the Window
 class to get movement values!
-
--_-_-_-_-_-_-_,------,   
-_-_-_-_-_-_-_-|   /\_/\   NYANYANYAN
--_-_-_-_-_-_-~|__( ^ .^) /
-_-_-_-_-_-_-_-""  ""   
-
+Automated camera, moving around the place, with specific stop points.
 *//////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "Window.h"
 #include "Matrix4.h"
 #include "Vector3.h"
+//#include "..\glm\gtc\matrix_transform.hpp"
 
 class Camera {
 public:
@@ -34,51 +28,99 @@ public:
 
 	void UpdateCameraManually(float msec = 10.0f);
 
-	//Builds a view matrix for the current camera variables, suitable for sending straight
-	//to a vertex shader (i.e it's already an 'inverse camera matrix').
 	Matrix4 BuildViewMatrix();
 
-	//Gets position in world space
 	Vector3 GetPosition() const { return position; }
-	//Sets position in world space
 	void SetPosition(Vector3 val) { position = val; }
 
-	void MoveCameraAround(float msec);
+	Matrix4 MoveCameraAround(float msec);
 	void SetInitialPosition(Vector3 val) { position = val; cameraStopPoints[0] = val; }
 
 	int GetCurrentPosition() { return currentPosition; }
-	//Gets yaw, in degrees
+	void SetCurrentPosition(int newPosition) { currentPosition = newPosition; }
+
+	bool GetStatePaused() { return paused; }
+	void SetStatePaused(bool newState) { paused = newState; }
+
+	bool GetDirection() { return toNextPosition; }
+	void SetDirectionToNext(bool goToNext) { toNextPosition = goToNext; }
+
 	float	GetYaw()   const { return yaw; }
-	//Sets yaw, in degrees
 	void	SetYaw(float y) { yaw = y; }
 
-	//Gets pitch, in degrees
 	float	GetPitch() const { return pitch; }
-	//Sets pitch, in degrees
 	void	SetPitch(float p) { pitch = p; }
+
+	Vector3 cameraTarget;
 protected:
 	float	yaw;
 	float	pitch;
 	Vector3 position;
 	float speed = 0.2f;
 	int currentPosition = 0;
-	Vector3 cameraStopPoints[17] = {
-		Vector3(0,0,0),
-		Vector3(2505,100,3883),
-		Vector3(2700,100,3650),
-		Vector3(2790,100,3362),
-		Vector3(2823,100,3129),
-		Vector3(2815,100,2786),
-		Vector3(2794,100,2492),
-		Vector3(2117,100,2538),
-		Vector3(1581,100,2425),
-		Vector3(2007,100,2691),
-		Vector3(2280,100,3103),
-		Vector3(1914,100,3384),
-		Vector3(1562,100,3423),
-		Vector3(1069,100,3466),
-		Vector3(1044,100,3750),
-		Vector3(1753,100,3715),
-		Vector3(2262,100,3793)
+	float y = 200.0f;
+	bool toNextPosition = true;
+	bool paused = false;
+	float diffX = 0.0f;
+	float diffZ = 0.0f;
+	Vector3 cameraStopPoints[18] = {
+		Vector3(0,y,0),
+		Vector3(2448,y,3863), 
+		Vector3(2704,y,3624),
+		Vector3(2699,y,3121),
+		Vector3(2686,y,2832),
+		Vector3(2864,y,2717),
+		Vector3(2649,y,2673),
+		Vector3(2234,y,2575),
+		Vector3(1631,y,2800),
+		Vector3(1332,y,2698),
+		Vector3(1297,y,2155),
+		Vector3(1932,y,2132),
+		Vector3(2329,y,2637),
+		Vector3(2392,y,3144),
+		Vector3(1980,y,3368),
+		Vector3(1252,y,3524),
+		Vector3(983,y,3660),
+		Vector3(983,y,3660)
+	};
+	float yawStopPoints[18] = {
+		0.0f,
+		353.0f,
+		353.0f,
+		333.0f,
+		308.0f,
+		62.0f,
+		89.0f,
+		77.0f,
+		9.0f,
+		313.0f,
+		232.0f,
+		196.0f,
+		193.0f,
+		126.0f,
+		99.0f,
+		76.0f,
+		295.0f,
+		288.0f
+	};
+	float pitchStopPoints[18] = {
+		0.0f,
+		-13.65f,
+		-11.76f,
+		-12.95f,
+		-16.94f,
+		-12.46f,
+		-12.88f,
+		-13.3f,
+		-13.72f,
+		-14.7f,
+		-13.58f,
+		-10.5f,
+		-15.12f,
+		-16.94f,
+		-20.44f,
+		-20.23f,
+		-14.21f,
+		23.94f
 	};
 };

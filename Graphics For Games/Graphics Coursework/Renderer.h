@@ -21,8 +21,7 @@ public:
 	void DrawItems();
 
 	void SwitchToPerspective();
-	void SwitchToOrthographic();
-
+	
 	inline void SetScale(float s) { scale = s; }
 	inline void SetRotation(float r) { rotation = r; }
 	inline void SetPosition(Vector3 p) { position = p; }
@@ -30,8 +29,7 @@ public:
 	virtual void UpdateScene(float msec);
 	void UpdateTextureMatrix(float rotation);
 	void ToggleFiltering(GLuint target);
-	void ToggleRepeating(GLuint target, bool state);
-
+	
 protected:
 	void DrawNode(SceneNode* n);
 	void CreateForest(int amountTrees, Vector3 transform, float scale, float degrees);

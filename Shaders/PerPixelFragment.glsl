@@ -1,6 +1,7 @@
 #version 150 core
 
 uniform sampler2D diffuseTex;
+uniform sampler2DShadow shadowTex; // NEW !
 
 uniform vec3 cameraPos;
 uniform vec4 lightColour;
@@ -12,6 +13,7 @@ in Vertex{
 	vec2 texCoord;
 	vec3 normal;
 	vec3 worldPos;
+	vec4 shadowProj; // New !
 } IN;
 
 out vec4 fragColour;
@@ -30,6 +32,13 @@ void main(void) {
 
 	float rFactor = max(0.0, dot(halfDir, IN.normal));
 	float sFactor = pow(rFactor, 50.0);
+
+	float shadow = 1.0; // New !
+
+	if (IN.shadowProj.w > 0.0) { // New !
+		shadow = textureProj(shadowTex, IN.shadowProj);
+	}
+	lambert *= shadow; // New !
 
 	vec3 colour = (diffuse.rgb * lightColour.rgb);
 	colour += (lightColour.rgb * sFactor) * 0.33;

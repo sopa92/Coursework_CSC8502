@@ -74,13 +74,11 @@
     <ClCompile Include="House.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Tree.cpp" />
-    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="House.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Tree.h" />
-    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

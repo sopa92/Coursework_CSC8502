@@ -29,7 +29,7 @@ void main(void) {
 	vec4 diffuse = texture(diffuseTex, IN.texCoord);
 
 	vec3 incident = normalize(lightPos - IN.worldPos);
-	float lambert = max(0.0, dot(incident, normal)); // Different !
+	float lambert = max(0.0, dot(incident, IN.normal)); // Different !
 
 	float dist = length(lightPos - IN.worldPos);
 	float atten = 1.0 - clamp(dist / lightRadius, 0.0, 1.0);
@@ -37,7 +37,7 @@ void main(void) {
 	vec3 viewDir = normalize(cameraPos - IN.worldPos);
 	vec3 halfDir = normalize(incident + viewDir);
 
-	float rFactor = max(0.0, dot(halfDir, normal)); // Different !
+	float rFactor = max(0.0, dot(halfDir, IN.normal)); // Different !
 	float sFactor = pow(rFactor, 33.0);
 
 	float shadow = 1.0; // New !
@@ -52,4 +52,5 @@ void main(void) {
 	colour += (lightColour.rgb * sFactor) * 0.33;
 	fragColour = vec4(colour * atten * lambert, diffuse.a);
 	fragColour.rgb += (diffuse.rgb * lightColour.rgb) * 0.1;
+	//fragColour.rgb=IN.normal;
 }
