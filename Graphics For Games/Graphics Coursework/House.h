@@ -3,6 +3,8 @@
 #include "../../nclgl/OBJMesh.h"
 #include "Wall.h"
 
+enum MeshType { Wall, Floor, Roof, Door, Triangle, Sphere };
+
 class House : public SceneNode {
 public:
 	House(void);
@@ -29,7 +31,7 @@ public:
 			else if (meshType == "cube_roof") {
 				shapeMesh->LoadOBJMesh(MESHDIR"cube.obj");
 				cube_roof = shapeMesh;
-				cube_roof->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"roof.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
+				cube_roof->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"snowy-roof.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
 			}
 			else if (meshType == "cube_door") {
 				shapeMesh->LoadOBJMesh(MESHDIR"cube.obj");
@@ -52,6 +54,27 @@ public:
 		delete triangle;
 		delete sphere;
 	}
+
+	Mesh* GetMesh(MeshType type){
+		switch (type)
+		{
+		case Floor:
+			return cube_floor;
+		case Wall:
+			return cube_wall;
+		case Door:
+			return cube_door;
+		case Roof:
+			return cube_roof;
+		case Triangle:
+			return triangle;
+		case Sphere:
+			return sphere;
+		default:
+			return nullptr;
+		}
+	}
+
 protected:
 	static Mesh* cube_floor;
 	static Mesh* cube_wall;
@@ -79,5 +102,7 @@ protected:
 	SceneNode* balcony_holder;
 	SceneNode* balcony_holder_left;
 	SceneNode* balcony_holder_right;
+
+	void SetRepeating(Mesh* mesh);
 };
 

@@ -9,6 +9,20 @@ Mesh* House::sphere = NULL;
 
 House::House(void) {
 	
+	/*SetRepeating(cube_floor);
+	SetRepeating(cube_wall);
+	SetRepeating(cube_door);
+	SetRepeating(cube_roof);
+	SetRepeating(triangle);
+	SetRepeating(sphere);
+
+	cube_floor->GenerateNormals();
+	cube_roof->GenerateNormals();
+	cube_wall->GenerateNormals();
+	cube_door->GenerateNormals();
+	triangle->GenerateNormals();
+	sphere->GenerateNormals();*/
+
 	SceneNode* houseBase = new SceneNode(cube_floor, Vector4(0, 0, 0, 1));
 	houseBase->name = "houseBase";
 	houseBase->SetModelScale(Vector3(5.5f, 1.5f, 4.0f));
@@ -69,13 +83,13 @@ House::House(void) {
 	
 	front_roof = new SceneNode(triangle, Vector4(0, 1, 0, 1));
 	front_roof->name = "front_roof";
-	front_roof->SetModelScale(roof->GetModelScale() * Vector3(5.0f, 1.4f, 0));
-	front_roof->SetTransform(Matrix4::Translation(Vector3(0.0f, 7.6f, 2.15f)));
+	front_roof->SetModelScale(roof->GetModelScale() * Vector3(5.1f, 1.5f, 0));
+	front_roof->SetTransform(Matrix4::Translation(Vector3(0.0f, 7.6f, 2.15f)) * Matrix4::Rotation(180, Vector3(0,1,0)));
 	roof->AddChild(front_roof);
 
 	back_roof = new SceneNode(triangle, Vector4(0, 1, 0, 1));
 	back_roof->name = "back_roof";
-	back_roof->SetModelScale(roof->GetModelScale() * Vector3(5.0f, 1.4f, 0));
+	back_roof->SetModelScale(roof->GetModelScale() * Vector3(5.1f, 1.5f, 0));
 	back_roof->SetTransform(Matrix4::Translation(Vector3(0.0f, 7.6f, -3.15f)));
 	roof->AddChild(back_roof);
 
@@ -136,12 +150,19 @@ House::House(void) {
 }
 
 void House::Update(float msec) {
-	//float itemHeight = transform.GetScalingVector().y;
+	float itemHeight = transform.GetScalingVector().y;
 
-	//if (transform.GetPositionVector().y < 5.0f + itemHeight) {
-	//	transform = transform * Matrix4::Translation(Vector3(0, 1 / (5 * itemHeight * msec), 0)) * Matrix4::Rotation(45, Vector3(0, 1 / (50 * msec), 0));
-	//	//transform = transform );
-	//}
+	if (transform.GetPositionVector().y < itemHeight) {
+		transform = transform * Matrix4::Translation(Vector3(0, 1 / (5 * itemHeight * msec), 0)); // * Matrix4::Rotation(0.5f, Vector3(0, 1, 0))
+	}
 	
 	SceneNode::Update(msec);
+}
+
+void House::SetRepeating(Mesh* mesh)
+{
+	glBindTexture(GL_TEXTURE_2D, mesh->GetTexture());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
