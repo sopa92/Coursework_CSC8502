@@ -90,7 +90,7 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 	CreateForest(5, forestPosition, 30, 0);
 	forestPosition = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 1.9f), -50.0f, (((RAW_WIDTH * HEIGHTMAP_X) / 1.17f))-370);
 	CreateForest(6, forestPosition, 30, 10.0f);
-	forestPosition += Vector3(-30.0f, -20.0f, -100.0f);
+	forestPosition = Vector3(((RAW_WIDTH * HEIGHTMAP_X) / 1.9f)-200, -50.0f, (((RAW_WIDTH * HEIGHTMAP_X) / 1.17f)) - 190);
 	CreateForest(4, forestPosition, 25, 0);
 	forestPosition += Vector3(-400.0f, -20.0f, 20.0f);
 	CreateForest(4, forestPosition, 30, -10.0f);
@@ -246,30 +246,30 @@ void Renderer::UpdateScene(float msec) {
 	
 	if (moveCameraManually) {
 		camera->UpdateCameraManually();
-		viewMatrix = camera->BuildViewMatrix();
+		//viewMatrix = camera->BuildViewMatrix();
 	}
 	else {
-		viewMatrix = camera->MoveCameraAround(msec);
+		camera->MoveCameraAround(msec);
 		int cameraIndexPosition = camera->GetCurrentPosition();
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_RIGHT) && cameraIndexPosition < 17) {
 			camera->SetStatePaused(false);
 			while (camera->GetCurrentPosition() != cameraIndexPosition + 1) {
-				viewMatrix = camera->MoveCameraAround(msec);
+				camera->MoveCameraAround(msec);
 			}
 			camera->SetStatePaused(true);
 		}
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_LEFT) && cameraIndexPosition > 0) {
 			camera->SetStatePaused(false);
-			//camera->SetCurrentPosition(cameraIndexPosition - 2);
 			while (camera->GetCurrentPosition() != cameraIndexPosition - 1) {
 				camera->SetDirectionToNext(false);
-				viewMatrix = camera->MoveCameraAround(msec);
+				camera->MoveCameraAround(msec);
 			}
 			camera->SetStatePaused(true);
 			camera->SetDirectionToNext(true);
 		}
+		//viewMatrix = Matrix4::BuildViewMatrix(camera->GetPosition(), camera->cameraTarget, Vector3(0, 1, 0));
 	}
-	//viewMatrix = Matrix4::BuildViewMatrix(camera->GetPosition(), camera->cameraTarget, Vector3(0,1,0));
+	viewMatrix = camera->BuildViewMatrix();
 	root->Update(msec);
 	waterRotate += msec / 5000.0f;
 }

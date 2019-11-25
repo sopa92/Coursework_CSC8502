@@ -33,7 +33,7 @@ public:
 	Vector3 GetPosition() const { return position; }
 	void SetPosition(Vector3 val) { position = val; }
 
-	Matrix4 MoveCameraAround(float msec);
+	void MoveCameraAround(float msec);
 	void SetInitialPosition(Vector3 val) { position = val; cameraStopPoints[0] = val; }
 
 	int GetCurrentPosition() { return currentPosition; }
@@ -63,13 +63,13 @@ protected:
 	bool paused = false;
 	float diffX = 0.0f;
 	float diffZ = 0.0f;
-	Vector3 cameraStopPoints[18] = {
+	Vector3 cameraStopPoints[6] = {
 		Vector3(0,y,0),
 		Vector3(2448,y,3863), 
 		Vector3(2704,y,3624),
 		Vector3(2699,y,3121),
 		Vector3(2686,y,2832),
-		Vector3(2864,y,2717),
+		Vector3(2864,y,2717)/*,
 		Vector3(2649,y,2673),
 		Vector3(2234,y,2575),
 		Vector3(1631,y,2800),
@@ -81,16 +81,16 @@ protected:
 		Vector3(1980,y,3368),
 		Vector3(1252,y,3524),
 		Vector3(983,y,3660),
-		Vector3(983,y,3660)
+		Vector3(983,y,3660)*/
 	};
-	float yawStopPoints[18] = {
+	float yawStopPoints[6] = {
 		0.0f,
-		353.0f,
-		353.0f,
-		333.0f,
-		308.0f,
+		357.0f,
+		357.0f,
+		3.0f,
+		345.0f,
+		70.0f/*,
 		62.0f,
-		89.0f,
 		77.0f,
 		9.0f,
 		313.0f,
@@ -101,15 +101,15 @@ protected:
 		99.0f,
 		76.0f,
 		295.0f,
-		288.0f
+		288.0f*/
 	};
-	float pitchStopPoints[18] = {
+	float pitchStopPoints[6] = {
 		0.0f,
 		-13.65f,
 		-11.76f,
 		-12.95f,
 		-16.94f,
-		-12.46f,
+		-12.46f/*,
 		-12.88f,
 		-13.3f,
 		-13.72f,
@@ -121,6 +121,6 @@ protected:
 		-20.44f,
 		-20.23f,
 		-14.21f,
-		23.94f
+		23.94f*/
 	};
 };

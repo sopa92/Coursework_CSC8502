@@ -62,9 +62,9 @@ Matrix4 Camera::BuildViewMatrix()	{
 			Matrix4::Translation(-position);
 }
 
-Matrix4 Camera::MoveCameraAround(float msec) {
+void Camera::MoveCameraAround(float msec) {
 	if (paused)
-		return BuildViewMatrix();
+		return;
 
 	if (currentPosition + 1 < (sizeof(cameraStopPoints) / sizeof(cameraStopPoints[0]))) {
 		Vector3 current = GetPosition();
@@ -77,43 +77,42 @@ Matrix4 Camera::MoveCameraAround(float msec) {
 			nextYaw = yawStopPoints[currentPosition - 1];
 			pitch = pitchStopPoints[currentPosition - 1];
 		}
-		if (nextYaw > 180.0f && yaw <180.0f) {
+		if (nextYaw > 180.0f && yaw <360.0f) {
 			nextYaw -= 360.0f;
 		}
 		float diffYaw = nextYaw - yaw;
-		/*if (diffYaw > 0) {
-			yaw += 0.5f;
+		if (diffYaw > 0) {
+			yaw += 1.0f;
 			if (yaw > nextYaw) {
 				yaw = nextYaw;
 			}
 		}else if (diffYaw < 0) {
-			yaw -= 0.5f;
+			yaw -= 1.0f;
 			if (yaw < nextYaw) {
 				yaw = nextYaw;
 			}
-		}*/
-		msec *= speed/2;
+		}
+		msec *= speed/3;
 
-		//yaw -= (Window::GetMouse()->GetRelativePosition().x);
 		if (diffX == 0 && diffZ == 0) {
-			diffX = (nextPos.x - current.x) / 10;
-			diffZ = (nextPos.z - current.z) / 10;
+			diffX = (nextPos.x - current.x) / 100;
+			diffZ = (nextPos.z - current.z) / 100;
 		}
 		if (diffX != 0 && diffZ == 0) {
 			if (diffX > 0) {
-				position -= Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
+				position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
 			}
 			else {
-				position += Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
+				position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
 			}
 			position.z = current.z;
 		}
 		else if (diffZ != 0 && diffX == 0) {
 			if (diffZ > 0) {
-				position -= Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * msec;
+				position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * msec;
 			}
 			else {
-				position += Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * msec;
+				position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * msec;
 			}
 			position.x = current.x;
 		}
@@ -121,19 +120,19 @@ Matrix4 Camera::MoveCameraAround(float msec) {
 			if (diffX > 0) {
 				//position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
 				if (diffZ > 0) {
-					position -= Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(-1, 0, -1) * msec;
+					position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, -1) * msec;
 				}
 				else {
-					position += Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(1, 0, -1) * msec;
+					position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(1, 0, -1) * msec;
 				}
 			}
 			else {
 				//position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
 				if (diffZ > 0) {
-					position -= Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(1, 0, -1) * msec;
+					position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(1, 0, -1) * msec;
 				}
 				else {
-					position += Matrix4::Rotation(0, Vector3(0, 1, 0)) * Vector3(-1, 0, -1) * msec;
+					position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, -1) * msec;
 				}
 			}
 		}
@@ -147,21 +146,22 @@ Matrix4 Camera::MoveCameraAround(float msec) {
 		float intpartPosX, intpartPosZ, intpartNextPosX, intpartNextPosZ, intpartYaw, intpartNextYaw;
 		modf(position.x, &intpartPosX);
 		modf(position.z, &intpartPosZ);
-		//modf(yaw, &intpartYaw);
+		modf(yaw, &intpartYaw);
 		modf(nextPos.x, &intpartNextPosX);
 		modf(nextPos.z, &intpartNextPosZ);
-		//modf(nextYaw, &intpartNextYaw);
-		if (intpartPosX == intpartNextPosX && intpartPosZ == intpartNextPosZ) {
+		modf(nextYaw, &intpartNextYaw);
+		if (intpartPosX == intpartNextPosX && intpartPosZ == intpartNextPosZ && intpartYaw == intpartNextYaw) {
 			if (!toNextPosition) {
 				currentPosition--;
 			}
 			else {
 				currentPosition++;
 			}
-			//yaw = 0;
+			yaw = 0;
 			cout << "currentPosition : " << currentPosition << endl;
 			cout << "current yaw : " << nextYaw << endl;
 		}
-		return Matrix4::BuildViewMatrix(position, cameraTarget, Vector3(0, 1, 0));
+		
 	}
+	else { return; }
 }

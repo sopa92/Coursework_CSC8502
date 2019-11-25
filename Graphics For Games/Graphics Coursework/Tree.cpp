@@ -23,8 +23,8 @@ Tree::Tree(void) {
 
 void Tree::Update(float msec) {
 	float itemHeight = transform.GetScalingVector().y;
-	if (transform.GetPositionVector().y < 10.0f + itemHeight) {
-		transform = transform * Matrix4::Translation(Vector3(0, 1 / (5* itemHeight *msec), 0));
+	if (transform.GetPositionVector().y < 8.0f + itemHeight) {
+		transform = transform * Matrix4::Translation(Vector3(0, 1 / (3* itemHeight *msec), 0));
 	}
 	int count = 0;
 	for (auto& leave : children) {
