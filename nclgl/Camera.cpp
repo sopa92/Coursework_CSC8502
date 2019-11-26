@@ -5,7 +5,7 @@ Polls the camera for keyboard / mouse movement.
 Should be done once per frame! Pass it the msec since
 last frame (default value is for simplicities sake...)
 */
-void Camera::UpdateCameraManually(float msec)	{
+void Camera::UpdateCamera(float msec)	{
 	//Update the mouse by how much
 	pitch -= (Window::GetMouse()->GetRelativePosition().y);
 	yaw -= (Window::GetMouse()->GetRelativePosition().x);
@@ -21,12 +21,82 @@ void Camera::UpdateCameraManually(float msec)	{
 		yaw -= 360.0f;
 	}
 	
-	msec *= speed;
+	msec *= 0.2f;
+	speed += 0.01f;
+
+	if (isCameraAutomated) {
+		if (!paused) {
+			position = Vector3(l_interp(this->GetPosition().x, cameraStopPoints[currentPosition].x, 0.01f),
+				l_interp(this->GetPosition().y, cameraStopPoints[currentPosition].y, 0.01f),
+				l_interp(this->GetPosition().z, cameraStopPoints[currentPosition].z, 0.01f));
+
+			this->SetPitch(l_interp(this->GetPitch(), stopPointsPitchYaw[currentPosition].x, 0.01f));
+			this->SetYaw(l_interp(this->GetYaw(), stopPointsPitchYaw[currentPosition].y, 0.01f));
+		}
+		else {
+			position = Vector3(l_interp(this->GetPosition().x, cameraStopPoints[currentPosition].x, 0.09f),
+				l_interp(this->GetPosition().y, cameraStopPoints[currentPosition].y, 0.09f),
+				l_interp(this->GetPosition().z, cameraStopPoints[currentPosition].z, 0.09f));
+
+			this->SetPitch(l_interp(this->GetPitch(), stopPointsPitchYaw[currentPosition].x, 0.09f));
+			this->SetYaw(l_interp(this->GetYaw(), stopPointsPitchYaw[currentPosition].y, 0.09f));
+		}
+		if (speed >= 3.0f) {
+			currentPosition++;
+			speed = 0.0f;
+			if (paused) {
+				isCameraAutomated = false;
+			}
+		}
+		if (currentPosition >= cameraStopPoints.size()) {
+			currentPosition = 0;
+		}		
+	}
+
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_C)) {
+		isCameraAutomated = !isCameraAutomated;
+	}
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_1)) {
+		currentPosition = 0;
+		SetTransportOptions();
+	}
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_2)) {
+		currentPosition = 2;
+		SetTransportOptions();
+	}
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_3)) {
+		currentPosition = 4;
+		SetTransportOptions();
+	}
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_4)) {
+		currentPosition = 6;
+		SetTransportOptions();
+	}
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_5)) {
+		currentPosition = 8;
+		SetTransportOptions();
+	}
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_6)) {
+		currentPosition = 10;
+		SetTransportOptions();
+	}
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_7)) {
+		currentPosition = 12;
+		SetTransportOptions();
+	}
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_8)) {
+		currentPosition = 14;
+		SetTransportOptions();
+	}
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_9)) {
+		currentPosition = 15;
+		SetTransportOptions();
+	}
 
 	if (Window::GetKeyboard()->KeyDown(KEYBOARD_P)) {
 		cout << "position : " << position << endl;
 		cout << "yaw : " << yaw << endl;
-		cout << "msec : " << msec << endl;
+		cout << "pitch : " << pitch << endl;
 	}
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_W)) {
 		position += Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(0,0,-1) * msec;
@@ -62,106 +132,45 @@ Matrix4 Camera::BuildViewMatrix()	{
 			Matrix4::Translation(-position);
 }
 
-void Camera::MoveCameraAround(float msec) {
-	if (paused)
-		return;
+void Camera::SetStopPointsPosition() {
+	cameraStopPoints.push_back(Vector3(2418.82f, camera_height, 4112.0f));
+	cameraStopPoints.push_back(Vector3(2692.82f, camera_height, 3834.0f));
+	cameraStopPoints.push_back(Vector3(2770.82f, camera_height, 3430.0f));
+	cameraStopPoints.push_back(Vector3(2974.82f, camera_height, 3066.0f));
+	cameraStopPoints.push_back(Vector3(2616.65f, camera_height, 2997.1f));
+	cameraStopPoints.push_back(Vector3(2309.53f, camera_height, 2742.31f));
+	cameraStopPoints.push_back(Vector3(1937.06f, camera_height, 2635.88f));
+	cameraStopPoints.push_back(Vector3(1596.12f, camera_height, 2713.65f));
+	cameraStopPoints.push_back(Vector3(1276.49f, camera_height, 2513.88f));
+	cameraStopPoints.push_back(Vector3(1425.42f, camera_height, 2093.87f));
+	cameraStopPoints.push_back(Vector3(2136.65f, camera_height, 2510.0f));
+	cameraStopPoints.push_back(Vector3(2392.11f, camera_height, 2872.89f));
+	cameraStopPoints.push_back(Vector3(2215.33f, camera_height, 3139.57f));
+	cameraStopPoints.push_back(Vector3(1922.03f, camera_height, 3440.39f));
+	cameraStopPoints.push_back(Vector3(1588.99f, camera_height, 3526.52f));
+	cameraStopPoints.push_back(Vector3(1103.56f, camera_height, 3415.49f));
+	cameraStopPoints.push_back(Vector3(1922.03f, camera_height, 3440.39f));
+	cameraStopPoints.push_back(Vector3(2418.82f, camera_height, 4112.0f));
+}
 
-	if (currentPosition + 1 < (sizeof(cameraStopPoints) / sizeof(cameraStopPoints[0]))) {
-		Vector3 current = GetPosition();
-
-		Vector3 nextPos = cameraStopPoints[currentPosition + 1];
-		float nextYaw = yawStopPoints[currentPosition + 1];
-		pitch = pitchStopPoints[currentPosition + 1];
-		if (!toNextPosition) {
-			nextPos = cameraStopPoints[currentPosition - 1];
-			nextYaw = yawStopPoints[currentPosition - 1];
-			pitch = pitchStopPoints[currentPosition - 1];
-		}
-		if (nextYaw > 180.0f && yaw <360.0f) {
-			nextYaw -= 360.0f;
-		}
-		float diffYaw = nextYaw - yaw;
-		if (diffYaw > 0) {
-			yaw += 1.0f;
-			if (yaw > nextYaw) {
-				yaw = nextYaw;
-			}
-		}else if (diffYaw < 0) {
-			yaw -= 1.0f;
-			if (yaw < nextYaw) {
-				yaw = nextYaw;
-			}
-		}
-		msec *= speed/3;
-
-		if (diffX == 0 && diffZ == 0) {
-			diffX = (nextPos.x - current.x) / 100;
-			diffZ = (nextPos.z - current.z) / 100;
-		}
-		if (diffX != 0 && diffZ == 0) {
-			if (diffX > 0) {
-				position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
-			}
-			else {
-				position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
-			}
-			position.z = current.z;
-		}
-		else if (diffZ != 0 && diffX == 0) {
-			if (diffZ > 0) {
-				position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * msec;
-			}
-			else {
-				position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * msec;
-			}
-			position.x = current.x;
-		}
-		else if (diffX != 0 && diffZ != 0) {
-			if (diffX > 0) {
-				//position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
-				if (diffZ > 0) {
-					position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, -1) * msec;
-				}
-				else {
-					position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(1, 0, -1) * msec;
-				}
-			}
-			else {
-				//position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * msec;
-				if (diffZ > 0) {
-					position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(1, 0, -1) * msec;
-				}
-				else {
-					position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, -1) * msec;
-				}
-			}
-		}
-		if (nextPos.y - current.y != 0) {
-			position.y += nextPos.y - current.y;
-		}
-		if (diffX != 0 && ((position.x > nextPos.x&& diffX > 0) || (position.x < nextPos.x && diffX < 0)))
-			position.x = nextPos.x;
-		if (diffZ != 0 && ((position.z > nextPos.z&& diffZ > 0) || (position.z < nextPos.z && diffZ < 0)))
-			position.z = nextPos.z;
-		float intpartPosX, intpartPosZ, intpartNextPosX, intpartNextPosZ, intpartYaw, intpartNextYaw;
-		modf(position.x, &intpartPosX);
-		modf(position.z, &intpartPosZ);
-		modf(yaw, &intpartYaw);
-		modf(nextPos.x, &intpartNextPosX);
-		modf(nextPos.z, &intpartNextPosZ);
-		modf(nextYaw, &intpartNextYaw);
-		if (intpartPosX == intpartNextPosX && intpartPosZ == intpartNextPosZ && intpartYaw == intpartNextYaw) {
-			if (!toNextPosition) {
-				currentPosition--;
-			}
-			else {
-				currentPosition++;
-			}
-			yaw = 0;
-			cout << "currentPosition : " << currentPosition << endl;
-			cout << "current yaw : " << nextYaw << endl;
-		}
-		
-	}
-	else { return; }
+void Camera::SetStopPointsPitchYaw()
+{
+	stopPointsPitchYaw.push_back(Vector2(0.0f, 0.0f));
+	stopPointsPitchYaw.push_back(Vector2(0.0f, 0.0f));
+	stopPointsPitchYaw.push_back(Vector2(0.0f, 0.0f));
+	stopPointsPitchYaw.push_back(Vector2(-4.13f, 36.19f));
+	stopPointsPitchYaw.push_back(Vector2(-2.66f, 45.15f));
+	stopPointsPitchYaw.push_back(Vector2(-7.28f, 59.64f));
+	stopPointsPitchYaw.push_back(Vector2(-11.97f, 42.98f));
+	stopPointsPitchYaw.push_back(Vector2(-14.7f, 300.78f));
+	stopPointsPitchYaw.push_back(Vector2(-11.76f, 285.87f));
+	stopPointsPitchYaw.push_back(Vector2(-3.64f, 242.82f));
+	stopPointsPitchYaw.push_back(Vector2(-1.68f, 215.87f));
+	stopPointsPitchYaw.push_back(Vector2(-4.27f, 186.889f));
+	stopPointsPitchYaw.push_back(Vector2(-19.18f, 147.059f));
+	stopPointsPitchYaw.push_back(Vector2(-12.6, 123.259f));
+	stopPointsPitchYaw.push_back(Vector2(-8.96f, 104.499f));
+	stopPointsPitchYaw.push_back(Vector2(-11.19f, 274.671f));
+	stopPointsPitchYaw.push_back(Vector2(-12.6, 295.0f));
+	stopPointsPitchYaw.push_back(Vector2(0.0f, 40.0f));
 }
