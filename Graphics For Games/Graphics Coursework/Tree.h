@@ -17,7 +17,7 @@ public:
 		} 
 		else if (meshType == "cone") {
 			cone = shapeMesh;
-			cone->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"pine-texture4.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
+			cone->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"pine-texture.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
 		}
 	}
 	

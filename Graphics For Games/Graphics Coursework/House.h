@@ -14,7 +14,7 @@ public:
 	static void CreateMesh(string meshType) {
 		if (meshType == "triangle") {
 			triangle = Mesh::GenerateTriangle();
-			triangle->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"wooden_wall3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
+			triangle->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"wooden_wall.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
 		}
 		else {
 			OBJMesh* shapeMesh = new OBJMesh();
@@ -26,7 +26,7 @@ public:
 			else if (meshType == "cube_wall") {
 				shapeMesh->LoadOBJMesh(MESHDIR"cube.obj");
 				cube_wall = shapeMesh;
-				cube_wall->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"wooden_wall3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
+				cube_wall->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"wooden_wall.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
 			}
 			else if (meshType == "cube_roof") {
 				shapeMesh->LoadOBJMesh(MESHDIR"cube.obj");

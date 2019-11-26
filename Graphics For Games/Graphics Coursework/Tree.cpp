@@ -24,14 +24,14 @@ Tree::Tree(void) {
 void Tree::Update(float msec) {
 	float itemHeight = transform.GetScalingVector().y;
 	if (transform.GetPositionVector().y < 8.0f + itemHeight) {
-		transform = transform * Matrix4::Translation(Vector3(0, 1 / (3* itemHeight *msec), 0));
+		transform = transform * Matrix4::Translation(Vector3(0, 1 / (2* itemHeight *msec), 0));
 	}
 	int count = 0;
 	for (auto& leave : children) {
 		if (count % 2 == 0)
-			leave->SetTransform(leave->GetTransform() * Matrix4::Rotation(1 / (1.8f * itemHeight * msec), Vector3(0, 1, 0)));
+			leave->SetTransform(leave->GetTransform() * Matrix4::Rotation(1 / (1.5f * itemHeight * msec), Vector3(0, 1, 0)));
 		else
-			leave->SetTransform(leave->GetTransform() * Matrix4::Rotation((1 / (1.8f * itemHeight * msec))-360, Vector3(0, 1, 0)));
+			leave->SetTransform(leave->GetTransform() * Matrix4::Rotation(360-(1 / (1.5f * itemHeight * msec)), Vector3(0, 1, 0)));
 		count++;
 	}
 	SceneNode::Update(msec);

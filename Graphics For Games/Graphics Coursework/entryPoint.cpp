@@ -4,7 +4,8 @@
 #pragma comment(lib, "nclgl.lib")
 
 int main() {
-	Window w("CSC8502-Coursework-b9033807", 1000, 700, false);
+	//Window w("CSC8502-Coursework-b9033807", 1920, 1080, true); // for FULLSCREEN
+	Window w("CSC8502-Coursework-b9033807", 1000, 600, false);
 	if (!w.HasInitialised()) {
 		return -1;
 	}
@@ -16,7 +17,7 @@ int main() {
 
 	w.LockMouseToWindow(true);
 	w.ShowOSPointer(false);
-
+	
 	while (w.UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)) {
 		renderer.UpdateScene(w.GetTimer()->GetTimedMS());		
 		renderer.RenderScene();
@@ -24,3 +25,4 @@ int main() {
 
 	return 0;
 }
+

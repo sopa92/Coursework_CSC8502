@@ -19,8 +19,6 @@ public:
 	void DrawWater();
 
 	void DrawItems();
-
-	void SwitchToPerspective();
 	
 	inline void SetScale(float s) { scale = s; }
 	inline void SetRotation(float r) { rotation = r; }
@@ -34,17 +32,12 @@ protected:
 	void DrawNode(SceneNode* n);
 	void CreateForest(int amountTrees, Vector3 transform, float scale, float degrees);
 	void CreateVillage(int amountHouses, Vector3 houseTransform, float scale, float degrees);
-	//---------------
-	void DrawShadowScene();
-
-	void DrawCombinedScene(); 
-	Shader* sceneShader;
-	Shader* shadowShader;
-	//---------------
+	void CreateObjectsOnScene();
 	GLuint shadowTex;
 	GLuint shadowFBO;
 
 	Mesh* quad;
+	Mesh* snowglobe;
 
 	float scale;
 	float rotation;
@@ -56,14 +49,32 @@ protected:
 	bool filtering;
 	bool repeating;
 
+	
+	void DrawShadowScene();
+	void DrawCombinedScene();
+	Shader* sceneShader;
+	Shader* shadowShader;
+
+	//----------------PP
+	void PresentScene();
+	void DrawPostProcess();
+	Shader* processShader;
+	GLuint bufferFBO;
+	GLuint processFBO;
+	GLuint bufferColourTex[2];
+	GLuint bufferDepthTex;
+	//----------------PP
+
 	Shader* lightShader;
 	Shader* reflectShader;
 	Shader* skyboxShader;
 
 	HeightMap* heightMap;
 	Light* light;
+	Light* pointLight;
 	GLuint cubeMap;
 	float waterRotate;
-	bool moveCameraManually = true;
+	float waterAscent;
+	bool moveCameraManually = false;
 };
 
