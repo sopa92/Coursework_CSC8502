@@ -127,7 +127,7 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 
 Renderer::~Renderer(void) {
 	delete root;
-	Tree::DeleteTree();	
+	Tree::DeleteTree();
 	House::DeleteHouse();
 	delete camera;
 	delete heightMap;
@@ -159,7 +159,7 @@ void Renderer::RenderScene() {
 }
 
 void Renderer::DrawSkybox() {
-	glDepthMask(GL_FALSE); //we don't want the quad to fill the depth buer, and cause our heightmap and water to be discarded
+	glDepthMask(GL_FALSE); //we don't want the quad to fill the depth buffer, and cause our heightmap and water to be discarded
 	SetCurrentShader(skyboxShader); //enable our skybox shader
 
 	UpdateShaderMatrices();
@@ -172,9 +172,9 @@ void Renderer::DrawSkybox() {
 void Renderer::DrawHeightmap() {
 	//glBindFramebuffer(GL_FRAMEBUFFER, bufferFBO);
 	//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
+
 	//SetCurrentShader(sceneShader);
-	
+
 
 	SetCurrentShader(lightShader); //enable the per fragment lighting shader
 	SetShaderLight(*light);		//set the shader light
@@ -205,8 +205,8 @@ void Renderer::DrawWater() {
 
 	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "cameraPos"), 1, (float*)&camera->GetPosition());
 	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
-	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "cubeTex"), 2); 
-	
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "cubeTex"), 2);
+
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);
 
@@ -272,7 +272,7 @@ void Renderer::DrawNode(SceneNode* n) {
 void Renderer::UpdateScene(float msec) {
 
 	camera->UpdateCamera();
-	
+
 	viewMatrix = camera->BuildViewMatrix();
 	root->Update(msec);
 	waterRotate += msec / 5000.0f;
@@ -325,7 +325,7 @@ void Renderer::CreateForest(int amountTrees, Vector3 treeTransform, float scale,
 			newlyCreatedTree->SetTransform(newlyCreatedTree->GetTransform() * translationMatr * scalingMatr);
 			forest->AddChild(newlyCreatedTree);
 		}
-		for (int i = 0; i < halfTrees+ restTrees; ++i) {
+		for (int i = 0; i < halfTrees + restTrees; ++i) {
 			Tree* newlyCreatedTree = new Tree();
 			Matrix4 translationMatr = Matrix4::Translation(treeTransform + Vector3(i * 3.0f * scale, 0.0f, -4 * scale));
 			Matrix4 scalingMatr = Matrix4::Scale(Vector3(scale, scale, scale));
@@ -357,7 +357,7 @@ void Renderer::CreateVillage(int amountHouses, Vector3 houseTransform, float sca
 		Matrix4 translationMatr = Matrix4::Translation(houseTransform + Vector3(i * 3.0f * scale, 0.0f, (i % 2) * 3.0f * scale));
 		Matrix4 scalingMatr = Matrix4::Scale(Vector3(scale, scale, scale));
 		newlyCreatedHouse->SetTransform(newlyCreatedHouse->GetTransform() * translationMatr * scalingMatr);
-		if(amountHouses==1)
+		if (amountHouses == 1)
 			newlyCreatedHouse->SetTransform(newlyCreatedHouse->GetTransform() * rotationMatr);
 		village->AddChild(newlyCreatedHouse);
 	}
