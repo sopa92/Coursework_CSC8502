@@ -170,9 +170,9 @@ void Camera::SetStopPointsPitchYaw()
 	stopPointsPitchYaw.push_back(Vector2(-1.68f, 215.87f));
 	stopPointsPitchYaw.push_back(Vector2(-4.27f, 186.889f));
 	stopPointsPitchYaw.push_back(Vector2(-19.18f, 147.059f));
-	stopPointsPitchYaw.push_back(Vector2(-12.6, 123.259f));
+	stopPointsPitchYaw.push_back(Vector2(-12.6f, 123.259f));
 	stopPointsPitchYaw.push_back(Vector2(-8.96f, 104.499f));
 	stopPointsPitchYaw.push_back(Vector2(-11.19f, 274.671f));
-	stopPointsPitchYaw.push_back(Vector2(-12.6, 295.0f));
+	stopPointsPitchYaw.push_back(Vector2(-12.6f, 295.0f));
 	stopPointsPitchYaw.push_back(Vector2(0.0f, 40.0f));
 }
