@@ -55,14 +55,14 @@ House::House(void) {
 
 	door = new SceneNode(cube_door, Vector4(0, 1, 0, 1));
 	door->name = "door";
-	door->SetModelScale(houseBase->GetModelScale() * Vector3(0.12f, 1.0f, 0.05f));
-	door->SetTransform(Matrix4::Translation(Vector3(1.0f, 1.5f, 0.0f)));
+	door->SetModelScale(houseBase->GetModelScale() * Vector3(0.12f, 0.9f, 0.05f));
+	door->SetTransform(Matrix4::Translation(Vector3(1.0f, 1.9f, 0.0f)));
 	front_wall->AddChild(door);
 
 	door_knob = new SceneNode(sphere, Vector4(0, 1, 0, 1));
 	door_knob->name = "door_knob";
 	door_knob->SetModelScale(houseBase->GetModelScale() * Vector3(0.015f, 0.05f, 0.015f));
-	door_knob->SetTransform(door->GetTransform() * Matrix4::Translation(Vector3(-0.6f, 0.3f, 0.2f)));
+	door_knob->SetTransform(door->GetTransform() * Matrix4::Translation(Vector3(-0.6f, -0.75f, 0.2f)));
 	door->AddChild(door_knob);
 
 	SceneNode* roof = new SceneNode();
@@ -83,13 +83,13 @@ House::House(void) {
 	
 	front_roof = new SceneNode(triangle, Vector4(0, 1, 0, 1));
 	front_roof->name = "front_roof";
-	front_roof->SetModelScale(roof->GetModelScale() * Vector3(5.1f, 1.5f, 0));
+	front_roof->SetModelScale(roof->GetModelScale() * Vector3(5.1f, 1.5f, 1));
 	front_roof->SetTransform(Matrix4::Translation(Vector3(0.0f, 7.6f, 2.15f)) * Matrix4::Rotation(180, Vector3(0,1,0)));
 	roof->AddChild(front_roof);
 
 	back_roof = new SceneNode(triangle, Vector4(0, 1, 0, 1));
 	back_roof->name = "back_roof";
-	back_roof->SetModelScale(roof->GetModelScale() * Vector3(5.1f, 1.5f, 0));
+	back_roof->SetModelScale(roof->GetModelScale() * Vector3(5.1f, 1.5f, 1));
 	back_roof->SetTransform(Matrix4::Translation(Vector3(0.0f, 7.6f, -3.15f)));
 	roof->AddChild(back_roof);
 
@@ -101,14 +101,14 @@ House::House(void) {
 
 	door_up = new SceneNode(cube_door, Vector4(0, 1, 0, 1));
 	door_up->name = "door_up";
-	door_up->SetModelScale(houseBase->GetModelScale() * Vector3(0.12f, 0.8f, 0.05f));
+	door_up->SetModelScale(houseBase->GetModelScale() * Vector3(0.12f, 0.9f, 0.05f));
 	door_up->SetTransform(Matrix4::Translation(Vector3(-1.5f, 5.0f, 0.0f)));
 	front_wall->AddChild(door_up);
 
 	door_knob_up = new SceneNode(sphere, Vector4(0, 1, 0, 1));
 	door_knob_up->name = "door_knob_up";
 	door_knob_up->SetModelScale(houseBase->GetModelScale() * Vector3(0.015f, 0.05f, 0.015f));
-	door_knob_up->SetTransform(door_up->GetTransform() * Matrix4::Translation(Vector3(1.8f, -3.7f, 0.2f)));
+	door_knob_up->SetTransform(door_up->GetTransform() * Matrix4::Translation(Vector3(1.8f, -3.8f, 0.2f)));
 	door_up->AddChild(door_knob_up);
 
 	balcony_holder_base_left = new SceneNode(cube_floor, Vector4(0, 0, 0, 1));
@@ -150,10 +150,12 @@ House::House(void) {
 }
 
 void House::Update(float msec) {
+
+	float seconds = msec / 4000.0f;
 	float itemHeight = transform.GetScalingVector().y;
 
 	if (transform.GetPositionVector().y < itemHeight) {
-		transform = transform * Matrix4::Translation(Vector3(0, 1 / (5 * itemHeight * msec), 0)); // * Matrix4::Rotation(0.5f, Vector3(0, 1, 0))
+		transform = transform * Matrix4::Translation(Vector3(0, 1.0f * seconds, 0)); 
 	}
 	
 	SceneNode::Update(msec);

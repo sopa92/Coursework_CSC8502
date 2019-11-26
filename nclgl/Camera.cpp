@@ -21,7 +21,8 @@ void Camera::UpdateCamera(float msec)	{
 		yaw -= 360.0f;
 	}
 	
-	msec *= 0.2f;
+	msec *= 0.5f;
+
 	speed += 0.01f;
 
 	if (isCameraAutomated) {

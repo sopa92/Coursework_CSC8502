@@ -53,6 +53,7 @@ Mesh* Mesh::GenerateTriangle() {
 	m->colours[2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
 	
 	m->GenerateNormals();
+	m->GenerateTangents();
 	m->BufferData();
 	return m;
 }

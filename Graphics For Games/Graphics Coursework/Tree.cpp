@@ -22,17 +22,21 @@ Tree::Tree(void) {
 }
 
 void Tree::Update(float msec) {
+	float seconds = msec / 5000.0f;
 	float itemHeight = transform.GetScalingVector().y;
-	if (transform.GetPositionVector().y < 8.0f + itemHeight) {
-		transform = transform * Matrix4::Translation(Vector3(0, 1 / (2* itemHeight *msec), 0));
+	if (transform.GetPositionVector().y < itemHeight*1.3f) {
+		transform = transform * Matrix4::Translation(Vector3(0, 1.0f * seconds, 0));
 	}
 	int count = 0;
-	for (auto& leave : children) {
-		if (count % 2 == 0)
-			leave->SetTransform(leave->GetTransform() * Matrix4::Rotation(1 / (1.5f * itemHeight * msec), Vector3(0, 1, 0)));
-		else
-			leave->SetTransform(leave->GetTransform() * Matrix4::Rotation(360-(1 / (1.5f * itemHeight * msec)), Vector3(0, 1, 0)));
+	for (auto& childNode : children) {
+		auto leaves = childNode->GetChildren();
+		for (auto& leaf : leaves) {
+			if (count % 2 == 0)
+				leaf->SetTransform(leaf->GetTransform() * Matrix4::Rotation(1 / (msec), Vector3(0, 1, 0)));
+			else
+				leaf->SetTransform(leaf->GetTransform() * Matrix4::Rotation(-(1 / (msec)), Vector3(0, 1, 0)));
 		count++;
+		}
 	}
 	SceneNode::Update(msec);
 }

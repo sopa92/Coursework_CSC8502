@@ -39,6 +39,7 @@ public:
 	void AddChild(SceneNode* s);
 	void DeleteChildren();
 
+
 	virtual void Update(float msec);
 	virtual void Draw(const OGLRenderer& r);
 
@@ -50,6 +51,8 @@ public:
 		return children.end();
 	}
 	string name;
+	std::vector<SceneNode*> GetChildren() { return children; }
+
 protected:
 	SceneNode* parent;
 	Mesh* mesh;

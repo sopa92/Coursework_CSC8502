@@ -36,12 +36,16 @@ public:
 			else if (meshType == "cube_door") {
 				shapeMesh->LoadOBJMesh(MESHDIR"cube.obj");
 				cube_door = shapeMesh;
-				cube_door->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"door.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
+				cube_door->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"door.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
+
+				bool a = true;
 			}
 			else if (meshType == "sphere") {
 				shapeMesh->LoadOBJMesh(MESHDIR"sphere.obj");
 				sphere = shapeMesh;
 				sphere->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"bronze.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0));
+
+				bool a = true;
 			}
 		}
 	}

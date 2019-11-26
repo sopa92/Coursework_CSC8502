@@ -37,7 +37,7 @@ protected:
 	GLuint shadowFBO;
 
 	Mesh* quad;
-	Mesh* snowglobe;
+	Mesh* quadWater;
 
 	float scale;
 	float rotation;
@@ -68,6 +68,7 @@ protected:
 	Shader* lightShader;
 	Shader* reflectShader;
 	Shader* skyboxShader;
+	Shader* presentSceneShader;
 
 	HeightMap* heightMap;
 	Light* light;
