@@ -15,10 +15,11 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 	root->name = "root";
 
 	camera = new Camera();
+	camera->SetPosition(Vector3(RAW_WIDTH * HEIGHTMAP_X / 1.7f, 180.0f, RAW_WIDTH * HEIGHTMAP_Z));
+
 	heightMap = new HeightMap(TEXTUREDIR"/terrain.raw");
 	quad = Mesh::GenerateQuad();
 
-	camera->SetPosition(Vector3(RAW_WIDTH * HEIGHTMAP_X / 1.7f, 180.0f, RAW_WIDTH * HEIGHTMAP_Z));
 	light = new Light(Vector3((RAW_HEIGHT * HEIGHTMAP_X / 2.0f), 200.0f, (RAW_HEIGHT * HEIGHTMAP_Z)),
 		Vector4(1.0f, 1.0f, 1.0f, 1), (RAW_WIDTH * HEIGHTMAP_X) / 0.5f);
 
@@ -235,9 +236,17 @@ void Renderer::DrawItems() {
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	DrawNode(root);
-	glDisable(GL_CULL_FACE);
+	if (!camera->GetSplitScreen()) {
+		DrawNode(root);
+	}
+	else {
+		glViewport(0, 0, width / 2, height);
+		DrawNode(root);
 
+		glViewport(width / 2, 0, width / 2, height);
+		DrawNode(root);
+	}
+	glDisable(GL_CULL_FACE);
 	glUseProgram(0);
 }
 
