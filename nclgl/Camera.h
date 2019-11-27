@@ -9,7 +9,6 @@ Automated camera, moving around the place, with specific stop points.
 #include "Window.h"
 #include "Matrix4.h"
 #include "Vector3.h"
-//#include "..\glm\gtc\matrix_transform.hpp"
 
 class Camera {
 public:
@@ -44,7 +43,6 @@ public:
 	void SetStopPointsPosition();
 	void SetStopPointsPitchYaw();
 
-	bool GetSplitScreen() const { return splitScreen; }
 
 protected:
 	float	yaw;
@@ -56,7 +54,7 @@ protected:
 	bool paused = false;
 	vector<Vector3> cameraStopPoints;
 	vector<Vector2> stopPointsPitchYaw;
-	bool isCameraAutomated = false;
+	bool isCameraAutomated = true;
 
 	float l_interp(float v0, float v1, float t) {
 		return (1 - t) * v0 + t * v1;
@@ -69,5 +67,4 @@ protected:
 		isCameraAutomated = true;
 	}
 
-	bool splitScreen = false;
 };
