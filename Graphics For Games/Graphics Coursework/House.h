@@ -106,7 +106,5 @@ protected:
 	SceneNode* balcony_holder;
 	SceneNode* balcony_holder_left;
 	SceneNode* balcony_holder_right;
-
-	void SetRepeating(Mesh* mesh);
 };
 

@@ -55,7 +55,6 @@ protected:
 	Shader* sceneShader;
 	Shader* shadowShader;
 
-	//----------------PP
 	void PresentScene();
 	void DrawPostProcess();
 	Shader* processShader;
@@ -63,7 +62,6 @@ protected:
 	GLuint processFBO;
 	GLuint bufferColourTex[2];
 	GLuint bufferDepthTex;
-	//----------------PP
 
 	Shader* lightShader;
 	Shader* reflectShader;

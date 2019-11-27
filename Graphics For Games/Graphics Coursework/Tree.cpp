@@ -32,10 +32,10 @@ void Tree::Update(float msec) {
 		auto leaves = childNode->GetChildren();
 		for (auto& leaf : leaves) {
 			if (count % 2 == 0)
-				leaf->SetTransform(leaf->GetTransform() * Matrix4::Rotation(1 / (msec), Vector3(0, 1, 0)));
+				leaf->SetTransform(leaf->GetTransform() * Matrix4::Rotation(seconds * 10, Vector3(0, 1, 0)));
 			else
-				leaf->SetTransform(leaf->GetTransform() * Matrix4::Rotation(-(1 / (msec)), Vector3(0, 1, 0)));
-		count++;
+				leaf->SetTransform(leaf->GetTransform() * Matrix4::Rotation(-seconds * 10, Vector3(0, 1, 0)));
+			count++;
 		}
 	}
 	SceneNode::Update(msec);

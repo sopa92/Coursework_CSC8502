@@ -36,7 +36,6 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 		|| !lightShader->LinkProgram() || !processShader->LinkProgram()) {
 		return;
 	}
-	//----------------------
 	sceneShader = new Shader(SHADERDIR"shadowscenevert.glsl", SHADERDIR"shadowscenefrag.glsl");
 	shadowShader = new Shader(SHADERDIR"shadowVert.glsl", SHADERDIR"shadowFrag.glsl");
 
@@ -64,7 +63,6 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowTex, 0);
 	glDrawBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//-----------------------
 	quadWater->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"water.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
 	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"GrassFrozen.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
@@ -102,14 +100,13 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	}
 
-	glGenFramebuffers(1, &bufferFBO); // We 'll render the scene into this
-	glGenFramebuffers(1, &processFBO); // And do post processing in this
+	glGenFramebuffers(1, &bufferFBO); 
+	glGenFramebuffers(1, &processFBO); 
 
 	glBindFramebuffer(GL_FRAMEBUFFER, bufferFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, bufferDepthTex, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, bufferDepthTex, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[0], 0);
-	// We can check FBO attachment success using this command !
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) !=
 		GL_FRAMEBUFFER_COMPLETE || !bufferDepthTex || !bufferColourTex[0]) {
 		return;
@@ -153,7 +150,7 @@ Renderer::~Renderer(void) {
 void Renderer::RenderScene() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	projMatrix = Matrix4::Perspective(1.0f, 10000.0f, (float)width / (float)height, 45.0f);
-	DrawShadowScene(); // First render pass ...
+	DrawShadowScene(); 
 
 	viewMatrix = camera->BuildViewMatrix();
 
@@ -173,24 +170,20 @@ void Renderer::RenderScene() {
 }
 
 void Renderer::DrawSkybox() {
-	glDepthMask(GL_FALSE); //we don't want the quad to fill the depth buffer, and cause our heightmap and water to be discarded
-	SetCurrentShader(skyboxShader); //enable our skybox shader
+	glDepthMask(GL_FALSE); 
+	SetCurrentShader(skyboxShader); 
 
 	UpdateShaderMatrices();
 	quad->Draw();
 
-	glUseProgram(0); //unbind the skybox shader
+	glUseProgram(0); 
 	glDepthMask(GL_TRUE);
 }
 
 void Renderer::DrawHeightmap() {
 
-
-	//SetCurrentShader(sceneShader);
-
-
-	SetCurrentShader(sceneShader); //enable the per fragment lighting shader
-	SetShaderLight(*light);		//set the shader light
+	SetCurrentShader(sceneShader); 
+	SetShaderLight(*light);	
 
 	//set the shader uniform variables
 	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "cameraPos"), 1, (float*)&camera->GetPosition());
@@ -213,7 +206,7 @@ void Renderer::DrawHeightmap() {
 
 void Renderer::DrawWater() {
 
-	SetCurrentShader(reflectShader);//enable the per fragment reflection shader
+	SetCurrentShader(reflectShader);
 	SetShaderLight(*light);
 
 	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "cameraPos"), 1, (float*)&camera->GetPosition());
@@ -237,7 +230,6 @@ void Renderer::DrawWater() {
 		Matrix4::Scale(Vector3(heightX, 1, heightZ)) *
 		Matrix4::Rotation(90, Vector3(1.0f, 0.0f, 0.0f));
 
-	//set the texture matrix in	this function, to make the texture coordinates repeat, and be rotated about the z-axis by the value waterRotate
 	textureMatrix = Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f)) * Matrix4::Rotation(waterRotate, Vector3(0.0f, 0.0f, 1.0f));
 
 	UpdateShaderMatrices();
@@ -254,16 +246,9 @@ void Renderer::DrawItems() {
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	if (!camera->GetSplitScreen()) {
-		DrawNode(root);
-	}
-	else {
-		glViewport(0, 0, width / 2, height);
-		DrawNode(root);
 
-		glViewport(width / 2, 0, width / 2, height);
-		DrawNode(root);
-	}
+	DrawNode(root);
+
 	glDisable(GL_CULL_FACE);
 	glUseProgram(0);
 }
@@ -385,8 +370,6 @@ void Renderer::CreateVillage(int amountHouses, Vector3 houseTransform, float sca
 }
 
 
-//----------------------------
-
 void Renderer::DrawShadowScene() {
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
 
@@ -404,6 +387,10 @@ void Renderer::DrawShadowScene() {
 	UpdateShaderMatrices();
 	DrawHeightmap();
 	SetCurrentShader(shadowShader);
+
+	viewMatrix = Matrix4::BuildViewMatrix(light->GetPosition(), Vector3(0, 0, 0));
+	shadowMatrix = biasMatrix * (projMatrix * viewMatrix);
+
 	UpdateShaderMatrices();
 	DrawItems();
 
@@ -435,7 +422,7 @@ void Renderer::DrawCombinedScene() {
 	glUseProgram(0);
 }
 
-//----------------------------
+
 void Renderer::DrawPostProcess() {
 	glBindFramebuffer(GL_FRAMEBUFFER, processFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[1], 0);
@@ -459,7 +446,6 @@ void Renderer::DrawPostProcess() {
 
 		quad->SetTexture(bufferColourTex[0]);
 		quad->Draw();
-		// Now to swap the colour buffers , and do the second blur pass
 		glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "isVertical"), 1);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[0], 0);
 

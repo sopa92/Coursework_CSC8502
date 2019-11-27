@@ -9,20 +9,6 @@ Mesh* House::sphere = NULL;
 
 House::House(void) {
 	
-	/*SetRepeating(cube_floor);
-	SetRepeating(cube_wall);
-	SetRepeating(cube_door);
-	SetRepeating(cube_roof);
-	SetRepeating(triangle);
-	SetRepeating(sphere);
-
-	cube_floor->GenerateNormals();
-	cube_roof->GenerateNormals();
-	cube_wall->GenerateNormals();
-	cube_door->GenerateNormals();
-	triangle->GenerateNormals();
-	sphere->GenerateNormals();*/
-
 	SceneNode* houseBase = new SceneNode(cube_floor, Vector4(0, 0, 0, 1));
 	houseBase->name = "houseBase";
 	houseBase->SetModelScale(Vector3(5.5f, 1.5f, 4.0f));
@@ -161,10 +147,3 @@ void House::Update(float msec) {
 	SceneNode::Update(msec);
 }
 
-void House::SetRepeating(Mesh* mesh)
-{
-	glBindTexture(GL_TEXTURE_2D, mesh->GetTexture());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
